@@ -1,0 +1,81 @@
+import java.io.*;
+
+/* Terminals (tokens returned by the scanner). */
+terminal PLUS, MINUS, TIMES, DIVIDE, LPAREN, RPAREN;
+terminal EQUALS, BooleanExpression, TYPE, WRITE, MAIN, RETURN, READ, BEGIN, END, IF, ELSE, SEMICOLON, COMMA, DOT, ID, NUMBER, QString;
+
+/* Non terminals */
+non terminal Integer Program,MethodDecl,MethodDecls,FormalParams,FormalParam,Block,Statement,Statements,LocalVarDecl,AssignStmt,ReturnStmt,IfStmt,WriteStmt,ReadStmt,Expression,BoolComparison,ActualParams;
+
+/* Precedences */
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence left ELSE;
+
+/* The grammar */
+
+MethodDecls ::= MethodDecl MethodDecls:e {: RESULT = e + 1; :}
+            |   MethodDecl {: RESULT = 1; :}
+            ;
+
+MethodDecl  ::= TYPE ID LPAREN FormalParams RPAREN Block 
+            |   TYPE MAIN ID LPAREN FormalParams RPAREN Block 
+            |   TYPE ID LPAREN RPAREN Block 
+            |   TYPE MAIN ID LPAREN RPAREN Block 
+            ;
+
+FormalParams    ::= FormalParam COMMA FormalParams 
+                | FormalParam
+                ;
+
+FormalParam     ::= TYPE ID 
+                ;
+
+Block       ::= BEGIN Statements END 
+            ;
+
+Statements  ::= Statement Statements
+            | Statement
+            ;
+
+Statement    ::= Block
+            | LocalVarDecl  
+            | AssignStmt   
+            | ReturnStmt
+            | IfStmt
+	        | WriteStmt
+	        | ReadStmt
+            ;
+
+LocalVarDecl ::= TYPE ID SEMICOLON 
+            | TYPE AssignStmt  
+            ;
+
+AssignStmt  ::= ID EQUALS Expression SEMICOLON
+            |   ID EQUALS QString SEMICOLON
+            ;
+ReturnStmt  ::= RETURN Expression SEMICOLON
+            ;
+IfStmt      ::= IF LPAREN BoolComparison RPAREN Statement
+            |   IF LPAREN BoolComparison RPAREN Statement ELSE Statement
+            ;
+WriteStmt   ::=  WRITE LPAREN Expression COMMA QString RPAREN SEMICOLON
+            ;
+ReadStmt    ::=  READ LPAREN ID COMMA QString RPAREN SEMICOLON
+            ;
+Expression  ::= Expression PLUS Expression
+            | Expression MINUS Expression
+            | Expression TIMES Expression
+            | Expression DIVIDE Expression
+            | LPAREN Expression RPAREN 
+            | ID LPAREN ActualParams RPAREN 
+            | ID LPAREN RPAREN
+			| NUMBER 
+            | ID
+			;
+BoolComparison      ::= Expression BooleanExpression Expression
+                    ;
+ActualParams        ::= Expression COMMA Expression
+                    | Expression
+                    ;
+
